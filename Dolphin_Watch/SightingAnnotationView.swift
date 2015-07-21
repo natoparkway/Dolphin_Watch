@@ -8,23 +8,34 @@
 
 import MapKit
 
+protocol AnnotationDelegate {
+    func photoLoaded(annotation: SightingAnnotationView)
+}
+
 class SightingAnnotationView: NSObject, MKAnnotation {
     let title: String
-    let notes: String
+    let dateCreated: NSDate
     let coordinate: CLLocationCoordinate2D
     var image: UIImage
+    var delegate: AnnotationDelegate?
     
-    init(title: String, notes: String, coordinate: CLLocationCoordinate2D, photo: UIImage) {
+    init(title: String, dateCreated: NSDate, coordinate: CLLocationCoordinate2D, photoFile: PFFile?) {
         self.title = title
-        self.notes = notes
+        self.dateCreated = dateCreated
         self.coordinate = coordinate
-        self.image = photo
-
-        
+        self.image = UIImage(named: "Bear_Icon")!   //Default image is a bear
         super.init()
+        
+        if photoFile != nil {
+            photoFile?.getDataInBackgroundWithBlock({ (data: NSData?, error: NSError?) -> Void in
+                self.image = UIImage(data: data!)!
+                self.delegate?.photoLoaded(self)
+            })
+        }
     }
     
+    //Populates the subtitle of the annotation
     var subtitle: String {
-        return notes
+        return Utils.sharedInstance.dateToString(dateCreated)
     }
 }

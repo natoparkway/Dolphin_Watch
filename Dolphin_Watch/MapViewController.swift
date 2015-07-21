@@ -10,34 +10,47 @@ import UIKit
 import CoreLocation
 import MapKit
 
+let defaultZoomLong:CLLocationDistance = 1000
+let defaultZoomLat:CLLocationDistance  = 1000
 
-class MapViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegate {
+class MapViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegate, SightingCreationDelegate, AnnotationDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
-    let zoomLong:CLLocationDistance = 1000
-    let zoomLat:CLLocationDistance  = 1000
     var sightings = [PFObject]()
     var searchController:UISearchController!
+    var userLocation: CLLocationCoordinate2D!
+    var HUD: BFRadialWaveHUD!
+    
+    @IBOutlet weak var buttonSurroundView2: UIView!
+    @IBOutlet weak var buttonSurroundView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        HUD = BFRadialWaveHUD(view: view, fullScreen: true, circles: BFRadialWaveHUD_DefaultNumberOfCircles, circleColor: UIColor.grayColor(), mode: BFRadialWaveHUDMode.Default, strokeWidth: BFRadialWaveHUD_DefaultCircleStrokeWidth)
         mapView.delegate = self
-        
         setMapLocationToUser()
+        getSightingsFromDBAndLoadMap()
         
-        ParseStore.sharedInstance.getAllSightings { (results: [PFObject]?) -> Void in
+        //Hacky way to make the buttons rounded instead of creating a custom class
+        buttonSurroundView.layer.cornerRadius = buttonSurroundView2.frame.width / 2
+        buttonSurroundView2.layer.cornerRadius = buttonSurroundView2.frame.width / 2
+        
+        mapView.showsUserLocation = true
+    
+    }
+    
+    func getSightingsFromDBAndLoadMap() {
+        HUD.show()
+        ParseStore.sharedInstance.getRecentSightings(Utils.sightingTimeRange) { (results: [PFObject]?) -> Void in
             if let sightings = results {
                 self.sightings = sightings
-                println("Got Sightings in Map View")
                 self.putPinsOnMap()
             } else {    //Something went wrong
                 //DISPLAY ERROR MESSAGE
-                
             }
+            self.HUD.dismiss()
         }
-        
-        mapView.showsUserLocation = true
     }
     
     @IBAction func showSearchBar(sender: AnyObject) {
@@ -63,9 +76,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegat
                 return
             }
 
-            let location = CLLocationCoordinate2D(latitude: localSearchResponse.boundingRegion.center.latitude, longitude:     localSearchResponse.boundingRegion.center.longitude)
-            let region = MKCoordinateRegionMakeWithDistance(location, self.zoomLat, self.zoomLong)
-            self.mapView.setRegion(region, animated: false)
+            let location = CLLocationCoordinate2D(latitude: localSearchResponse.boundingRegion.center.latitude, longitude: localSearchResponse.boundingRegion.center.longitude)
+            self.setMapLocationToPoint(location, zoomIn: true)
         }
     
 
@@ -74,28 +86,37 @@ class MapViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegat
     
     //Refreshes screen and centers screen on user location.
     @IBAction func refreshButtonClicked(sender: AnyObject) {
-        setMapLocationToUser()
+        let annotationsToRemove = mapView.annotations.filter { $0 !== self.mapView.userLocation }
+        mapView.removeAnnotations(annotationsToRemove)
+        getSightingsFromDBAndLoadMap()
     }
-    /*
-     * Sets the map's viewing region to that of the current user.
-     */
+
     func setMapLocationToUser() {
         LocationManager.sharedInstance.subscribeToLocationUpdates(self, continueUpdating: false, withBlock: { (location: CLLocation) -> Void in
-            let region = MKCoordinateRegionMakeWithDistance(location.coordinate, self.zoomLat, self.zoomLong)
-            self.mapView.setRegion(region, animated: false)
+            self.userLocation = location.coordinate
+            self.setMapLocationToPoint(location.coordinate, zoomIn: true)
         })
+    }
+    
+    func setMapLocationToPoint(location: CLLocationCoordinate2D, zoomIn: Bool) {
+        if zoomIn {
+            let region = MKCoordinateRegionMakeWithDistance(location, defaultZoomLat, defaultZoomLong)
+            mapView.setRegion(region, animated: false)
+        } else {
+            mapView.centerCoordinate = location
+        }
     }
     
     func putPinsOnMap() {
         for sighting in sightings {
-            let geoPoint = sighting["location"] as! PFGeoPoint
-            let sightingPoint = CLLocationCoordinate2D(latitude: geoPoint.latitude, longitude: geoPoint.longitude)
+            let sightingPoint = Utils.sharedInstance.PFGeoPointToCLLocationCoordinate2D(sighting["location"] as! PFGeoPoint)
+            let dateSeen = sighting["dateSeen"] as! NSDate
             var title = "Sighting"
             if let animalType = sighting["animalType"] as? String {
                 title = animalType + " " + title
             }
             
-            createAnnotation(sightingPoint, title: title, imageFile: sighting["photo"] as? PFFile)
+            createAnnotation(sightingPoint, title: title, dateCreated: dateSeen,imageFile: sighting["photo"] as? PFFile)
         }
     }
 
@@ -110,32 +131,15 @@ class MapViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegat
      */
     @IBAction func mapLongPressed(sender: UILongPressGestureRecognizer) {
         performSegueWithIdentifier("CreateSighting", sender: sender)
-        let touchPoint = sender.locationInView(mapView)
-        let touchCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
-        createAnnotation(touchCoordinate, title: "Sighting", imageFile: nil)
     }
     
-    /*
-     * Creates an annotation at a given point with a given title and adds it the map view.
-     */
-    func createAnnotation(touchCoordinate: CLLocationCoordinate2D, title: String, imageFile: PFFile?) {
-        var photo: UIImage!
-        if imageFile == nil {
-            photo = UIImage(named: "Bear_Icon")
-        } else {
-            //Here we should create the photo or something
-            photo = UIImage(named: "Bear_Icon")
-        }
-        
-        let annotation = SightingAnnotationView(title: title, notes: "testing", coordinate: touchCoordinate, photo: photo)
-        mapView.addAnnotation(annotation)
-    }
     
     func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
         //If the pin would be for the user location, return nil so that it shows default
         if annotation.isKindOfClass(MKUserLocation) {
             return nil
         }
+
         
         if let annotation = annotation as? SightingAnnotationView {
             let identifier = "myAnnotationView"
@@ -148,17 +152,65 @@ class MapViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegat
                 view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
                 view.canShowCallout = true
                 view.calloutOffset = CGPoint(x: -5, y: 5)
-//FOR ADDING PHOTO: view.leftCalloutAccessoryView = UIImageView(frame: CGRect(x:0, y:0, width: 50, height:50))
+                view.leftCalloutAccessoryView = UIImageView(frame: CGRect(x:0, y:0, width: 50, height:50))
             }
-
-//FOR SETTING PHOTO: let imageView = view.leftCalloutAccessoryView as! UIImageView
+            
+            var gr = UILongPressGestureRecognizer(target: self, action: "annotationLongPressed:")
+            view.addGestureRecognizer(gr)
+            
+            (view.leftCalloutAccessoryView as! UIImageView).image = annotation.image
             return view
          
             
         }
         return nil
     }
+    
+    func annotationLongPressed(sender: UILongPressGestureRecognizer) {
+        let locPoint = mapView.convertPoint(sender.locationInView(mapView), toCoordinateFromView: mapView)
+        let region = MKCoordinateRegionMakeWithDistance(locPoint, defaultZoomLat, defaultZoomLong)
         
+        var placemark = MKPlacemark(coordinate: locPoint, addressDictionary: nil)
+        var mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = "Sighting Location!"
+        mapItem.openInMapsWithLaunchOptions(nil)
+    }
+    
+
+    
+    //CreateSighting delegate method. Called when a sighting is created
+    func sightingCreated(location: CLLocationCoordinate2D, animal: String, dateCreated: NSDate, imageFile: PFFile?) {
+        createAnnotation(location, title: animal + " Sighting", dateCreated: dateCreated, imageFile: imageFile)
+        ParseStore.sharedInstance.sendNotificationToUsersNearLoc(CLLocation(latitude: location.latitude, longitude: location.longitude))
+    }
+    
+    /*
+    * Creates an annotation at a given point with a given title and adds it the map view.
+    */
+    func createAnnotation(touchCoordinate: CLLocationCoordinate2D, title: String, dateCreated: NSDate, imageFile: PFFile?) {
+        let annotation = SightingAnnotationView(title: title, dateCreated: dateCreated, coordinate: touchCoordinate, photoFile: imageFile)
+        annotation.delegate = self
+        mapView.addAnnotation(annotation)
+    }
+    
+    func photoLoaded(annotation: SightingAnnotationView) {
+        mapView.removeAnnotation(annotation)
+        mapView.addAnnotation(annotation)
+    }
+    
+    
+    @IBAction func nextButtonPressed(sender: AnyObject) {
+        ParseStore.sharedInstance.getNextClosestSighting(sightings: sightings, userLocation: self.userLocation, currentCenterCoord: self.mapView.centerCoordinate, block: { (closestCoord: CLLocationCoordinate2D) -> Void in
+            self.setMapLocationToPoint(closestCoord, zoomIn: false)
+        })
+    }
+    
+
+    
+
+    @IBAction func goToUserLocationPressed(sender: AnyObject) {
+        setMapLocationToUser()
+    }
 
 
     // MARK: - Navigation
@@ -172,10 +224,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegat
                 let createSightingNav = segue.destinationViewController as! UINavigationController
                 let createSightingVC = createSightingNav.topViewController as! CreateSightingViewController
                 let locPoint = (sender as! UILongPressGestureRecognizer).locationInView(mapView)
+                createSightingVC.delegate = self
                 createSightingVC.location = mapView.convertPoint(locPoint, toCoordinateFromView: mapView)
 
             }
         }
+
     }
 
 }

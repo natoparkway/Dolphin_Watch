@@ -4,12 +4,27 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Pods-BFRadialWaveHUD.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-BFRadialWaveView.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Bolts.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
 		<key>Pods-Parse.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-UIColor+BFPaperColors.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -22,17 +37,32 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>4144BBD83451BD950A0AAA03</key>
+		<key>0486D327BAF2B4CBED0C1EB5</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>490FD7F7F1881684362B995A</key>
+		<key>340A819F539479B66B8D05F7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>DD65512E0821E928237BC80B</key>
+		<key>5D745D5834A788EE60E03540</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>93E6F3CADCEB475A9CE6BDBE</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>BBEDF98C4AB691E93385742C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CFED634CD33FC829B1E8212F</key>
 		<dict>
 			<key>primary</key>
 			<true/>

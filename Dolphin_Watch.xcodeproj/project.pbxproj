@@ -8,8 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0C871C753BF214BEBF2E2F59 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0278570463A61FDFAC692580 /* libPods.a */; };
+		0F208AB51B5B0AC500F53F80 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F208AB41B5B0AC500F53F80 /* Utils.swift */; };
+		0F208AB81B5B34F400F53F80 /* CircularButtonWithIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F208AB71B5B34F400F53F80 /* CircularButtonWithIcon.swift */; };
 		0FDEC1A61B3766E4003DD4C8 /* SightingAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDEC1A51B3766E4003DD4C8 /* SightingAnnotationView.swift */; };
 		0FDEC1A91B3BB649003DD4C8 /* SightingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDEC1A81B3BB649003DD4C8 /* SightingCell.swift */; };
+		0FDEC1AB1B3BBB7A003DD4C8 /* HomeTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDEC1AA1B3BBB7A003DD4C8 /* HomeTabBarViewController.swift */; };
 		0FFBDE8F1B2295CE00CF185A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFBDE8E1B2295CE00CF185A /* AppDelegate.swift */; };
 		0FFBDE941B2295CE00CF185A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0FFBDE921B2295CE00CF185A /* Main.storyboard */; };
 		0FFBDE961B2295CE00CF185A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0FFBDE951B2295CE00CF185A /* Images.xcassets */; };
@@ -36,8 +39,11 @@
 
 /* Begin PBXFileReference section */
 		0278570463A61FDFAC692580 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		0F208AB41B5B0AC500F53F80 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		0F208AB71B5B34F400F53F80 /* CircularButtonWithIcon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularButtonWithIcon.swift; sourceTree = "<group>"; };
 		0FDEC1A51B3766E4003DD4C8 /* SightingAnnotationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SightingAnnotationView.swift; sourceTree = "<group>"; };
 		0FDEC1A81B3BB649003DD4C8 /* SightingCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SightingCell.swift; sourceTree = "<group>"; };
+		0FDEC1AA1B3BBB7A003DD4C8 /* HomeTabBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeTabBarViewController.swift; sourceTree = "<group>"; };
 		0FFBDE891B2295CE00CF185A /* Dolphin_Watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dolphin_Watch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FFBDE8D1B2295CE00CF185A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0FFBDE8E1B2295CE00CF185A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -80,6 +86,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0F208AB61B5B34AC00F53F80 /* Custom Views */ = {
+			isa = PBXGroup;
+			children = (
+				0F208AB71B5B34F400F53F80 /* CircularButtonWithIcon.swift */,
+			);
+			name = "Custom Views";
+			sourceTree = "<group>";
+		};
 		0FDEC1A71B3BB5E0003DD4C8 /* Table Cells */ = {
 			isa = PBXGroup;
 			children = (
@@ -113,6 +127,7 @@
 		0FFBDE8B1B2295CE00CF185A /* Dolphin_Watch */ = {
 			isa = PBXGroup;
 			children = (
+				0F208AB61B5B34AC00F53F80 /* Custom Views */,
 				0FDEC1A71B3BB5E0003DD4C8 /* Table Cells */,
 				0FFBDEB71B22981C00CF185A /* Custom Classes */,
 				0FFBDEB61B22980E00CF185A /* View Controllers */,
@@ -123,6 +138,7 @@
 				0FFBDE8C1B2295CE00CF185A /* Supporting Files */,
 				0FFBDEBE1B22D4A100CF185A /* Dolphin_Watch-Bridging-Header.h */,
 				0FFBDEC11B22D5D000CF185A /* ParseStore.swift */,
+				0F208AB41B5B0AC500F53F80 /* Utils.swift */,
 			);
 			path = Dolphin_Watch;
 			sourceTree = "<group>";
@@ -155,6 +171,7 @@
 		0FFBDEB61B22980E00CF185A /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				0FDEC1AA1B3BBB7A003DD4C8 /* HomeTabBarViewController.swift */,
 				0FFBDEBC1B22AA6900CF185A /* CreateSightingViewController.swift */,
 				0FFBDEB21B22979800CF185A /* SightingsListViewController.swift */,
 				0FFBDEB01B22978700CF185A /* MapViewController.swift */,
@@ -324,14 +341,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0FDEC1AB1B3BBB7A003DD4C8 /* HomeTabBarViewController.swift in Sources */,
 				0FFBDEBD1B22AA6900CF185A /* CreateSightingViewController.swift in Sources */,
 				0FFBDE8F1B2295CE00CF185A /* AppDelegate.swift in Sources */,
 				0FDEC1A91B3BB649003DD4C8 /* SightingCell.swift in Sources */,
 				0FDEC1A61B3766E4003DD4C8 /* SightingAnnotationView.swift in Sources */,
+				0F208AB51B5B0AC500F53F80 /* Utils.swift in Sources */,
 				0FFBDEBB1B229AAD00CF185A /* LocationManager.swift in Sources */,
 				0FFBDEB31B22979800CF185A /* SightingsListViewController.swift in Sources */,
 				0FFBDEB11B22978700CF185A /* MapViewController.swift in Sources */,
 				0FFBDEC21B22D5D000CF185A /* ParseStore.swift in Sources */,
+				0F208AB81B5B34F400F53F80 /* CircularButtonWithIcon.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,7 +487,7 @@
 				INFOPLIST_FILE = Dolphin_Watch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "d34413a3-6e43-4793-ad7b-90f48a91468c";
 				SWIFT_OBJC_BRIDGING_HEADER = "Dolphin_Watch/Dolphin_Watch-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -484,7 +504,7 @@
 				INFOPLIST_FILE = Dolphin_Watch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "d34413a3-6e43-4793-ad7b-90f48a91468c";
 				SWIFT_OBJC_BRIDGING_HEADER = "Dolphin_Watch/Dolphin_Watch-Bridging-Header.h";
 			};
 			name = Release;

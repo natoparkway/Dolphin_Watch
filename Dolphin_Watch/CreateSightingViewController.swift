@@ -8,6 +8,10 @@
 
 import UIKit
 
+protocol SightingCreationDelegate {
+    func sightingCreated(location: CLLocationCoordinate2D, animal: String, dateCreated: NSDate, imageFile: PFFile?)
+}
+
 class CreateSightingViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UITextViewDelegate {
 
 
@@ -17,9 +21,13 @@ class CreateSightingViewController: UIViewController, UINavigationControllerDele
     @IBOutlet weak var groupSizeStepper: UIStepper!
     @IBOutlet weak var animalPicture: UIImageView!
     
+    var photoTaken = false
+    var animalIcons = ["Dolphins", "Reindeer", "Swan", "Dog", "Elephant", "Fish", "Fox", "Lion", "Octopus"]
+    
     var imagePicker: UIImagePickerController!
     var location: CLLocationCoordinate2D!
     let textViewPrompt = "e.g where the animal was heading, what it was doing etc."
+    var delegate: SightingCreationDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +38,10 @@ class CreateSightingViewController: UIViewController, UINavigationControllerDele
         // Do any additional setup after loading the view.
     }
     
+    //Force portrait orientation
+    override func supportedInterfaceOrientations() -> Int {
+        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
+    }
 
     
     func addTextViewBorder() {
@@ -78,6 +90,7 @@ class CreateSightingViewController: UIViewController, UINavigationControllerDele
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
         imagePicker.dismissViewControllerAnimated(true, completion: nil)
         animalPicture.image = info[UIImagePickerControllerOriginalImage] as? UIImage
+        photoTaken = true
     }
     
     @IBAction func backButtonClicked(sender: AnyObject) {
@@ -98,11 +111,18 @@ class CreateSightingViewController: UIViewController, UINavigationControllerDele
             notes = ""
         }
         
-        var photoData = UIImageJPEGRepresentation(animalPicture.image!, 0.50)
+        var image = animalPicture.image!
+        if !photoTaken {
+            image = UIImage(named: animalIcons[Int(arc4random_uniform(UInt32(animalIcons.count)))])!
+        }
+        
+        var photoData = UIImageJPEGRepresentation(image, 0.50)
         var imageFile = PFFile(data: photoData)
         
+        delegate?.sightingCreated(location, animal: animalType, dateCreated: NSDate(),imageFile: imageFile)
         
         ParseStore.sharedInstance.saveSighting(groupSize: groupSize, location: location, animalType: animalType, notes: notes, imageFile: imageFile)
+        
         dismissViewControllerAnimated(true, completion: nil)
     }
 

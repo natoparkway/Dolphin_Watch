@@ -17,8 +17,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         Parse.setApplicationId("xnV81uoqHp4LjscZywdrWxscX03GUDHrpRrAWv5v",
             clientKey: "d3GW7psoO8is7N1J08BFTKtHtZoButFkm21oDDrs")
+        
+        let userNotificationTypes = (UIUserNotificationType.Alert | UIUserNotificationType.Badge | UIUserNotificationType.Sound)
+        let settings = UIUserNotificationSettings(forTypes: userNotificationTypes, categories: nil)
+        
+        application.registerForRemoteNotifications()
+        application.registerUserNotificationSettings(settings)
+        
         return true
     }
+    
+    
+    //PUSH NOTIFICATIONS
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+        println("didRegisterForRemoteNotificationsWithDeviceToken")
+        
+        let currentInstallation = PFInstallation.currentInstallation()
+        
+        currentInstallation.setDeviceTokenFromData(deviceToken)
+        currentInstallation.saveInBackgroundWithBlock { (succeeded: Bool, error: NSError?) -> Void in
+            
+        }
+    }
+    
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+        PFPush.handlePush(userInfo)
+    }
+    
+    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+        println("failed to register for remote notifications:  (error)")
+    }
+
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

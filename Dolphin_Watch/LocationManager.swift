@@ -28,7 +28,14 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
+        println("Location Updated")
         let location = locations.last as! CLLocation
+        
+        //Save location value
+        let installation = PFInstallation.currentInstallation()
+        installation["location"] = PFGeoPoint(location: location)
+        installation.saveInBackgroundWithBlock(nil)
+        
         NSNotificationCenter.defaultCenter().postNotificationName(locationUpdatedName, object: nil, userInfo: ["location":location])
     }
     

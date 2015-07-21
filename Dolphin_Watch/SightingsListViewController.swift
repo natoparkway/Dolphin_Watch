@@ -13,14 +13,35 @@ import MapKit
 class SightingsListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    var sightings = [PFObject]()
+    var refreshControl = UIRefreshControl()
+    var HUD: BFRadialWaveHUD!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         tableView.dataSource = self
         tableView.delegate = self
-
         
-        // Do any additional setup after loading the view.
+        refreshControl.addTarget(self, action: "populateTable", forControlEvents: UIControlEvents.ValueChanged)
+        tableView.insertSubview(refreshControl, atIndex: 0)
+        
+        HUD = BFRadialWaveHUD(view: view, fullScreen: true, circles: BFRadialWaveHUD_DefaultNumberOfCircles, circleColor: UIColor.grayColor(), mode: BFRadialWaveHUDMode.Default, strokeWidth: BFRadialWaveHUD_DefaultCircleStrokeWidth)
+        populateTable()
+    }
+    
+    //Get data and populate table
+    func populateTable() {
+        self.refreshControl.endRefreshing()
+        self.HUD.show()
+        ParseStore.sharedInstance.getAllSightings { (results: [PFObject]?) -> Void in
+            if let sightings = results {
+                self.sightings = sightings
+                self.tableView.reloadData()
+            } else {    //Something went wrong
+                //DISPLAY ERROR MESSAGE
+            }
+            self.HUD.dismiss()
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -33,11 +54,21 @@ class SightingsListViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return sightings.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var indexPath =
+        var cell = tableView.dequeueReusableCellWithIdentifier("SightingCell", forIndexPath: indexPath) as! SightingCell
+        cell.selectionStyle = .None
+        cell.setFields(sightings[indexPath.row])
+        
+        return cell
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        dismissViewControllerAnimated(true, completion: { () -> Void in
+            
+        })
     }
     
 
